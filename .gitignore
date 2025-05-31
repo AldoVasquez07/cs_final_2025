@@ -1,0 +1,85 @@
+# --- General ---
+*.log
+*.pot
+*.pyc
+*.pyo
+__pycache__/
+*.sqlite3
+.env
+.env.*     # Para múltiples entornos
+
+# --- macOS / Linux ---
+.DS_Store
+Thumbs.db
+
+# --- Virtual Environment ---
+venv/
+env/
+ENV/
+*.egg-info/
+.eggs/
+
+# --- Django ---
+/backend/db.sqlite3
+/backend/staticfiles/
+backend/media/
+backend/static/
+
+# Django migrations
+**/migrations/
+!**/migrations/__init__.py
+
+# Django secret key or local settings
+backend/**/local_settings.py
+
+# --- Vue / Vite ---
+# node modules
+/frontend/node_modules/
+
+# build output
+/frontend/dist/
+frontend/.vitepress/dist/
+
+# local dev server cache
+frontend/.vite/
+
+# logs and lock files
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/pnpm-debug.log*
+/frontend/package-lock.json
+/frontend/pnpm-lock.yaml
+/frontend/yarn.lock
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- OS-specific ---
+# Windows
+ehthumbs.db
+Desktop.ini
+
+# --- Testing ---
+/htmlcov/
+.tox/
+.pytest_cache/
+.coverage
+.coverage.*
+.noseids
+.cache
+.junit.xml
+
+# --- Docker ---
+*.pid
+*.seed
+*.pid.lock
+docker-compose.override.yml
+
+# --- Lint and Formatting ---
+/*.pylintrc
+/.flake8
+/.mypy_cache/
