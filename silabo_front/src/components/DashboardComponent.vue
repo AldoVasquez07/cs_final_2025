@@ -3,98 +3,374 @@
     <!-- Menú lateral -->
     <aside class="sidebar" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
       <div class="sidebar-header">
-        <h3 v-if="!sidebarCollapsed">Mi App</h3>
-        <button @click="toggleSidebar" class="toggle-btn">
-          {{ sidebarCollapsed ? '→' : '←' }}
+        <h3 v-if="!sidebarCollapsed" class="h5 mb-0">Mi App</h3>
+        <button @click="toggleSidebar" class="btn btn-link text-white p-1">
+          <i :class="sidebarCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left'"></i>
         </button>
       </div>
       
       <nav class="sidebar-nav">
-        <ul>
-          <li>
+        <ul class="nav flex-column">
+          <!-- Dashboard -->
+          <li class="nav-item">
             <a href="#" @click="setActiveSection('dashboard')" 
-               :class="{ active: activeSection === 'dashboard' }">
-              <span class="icon">🏠</span>
-              <span v-if="!sidebarCollapsed" class="text">Dashboard</span>
+               class="nav-link" :class="{ active: activeSection === 'dashboard' }">
+              <i class="fas fa-tachometer-alt sidebar-icon"></i>
+              <span v-if="!sidebarCollapsed" class="sidebar-text">Dashboard</span>
             </a>
           </li>
-          <li>
-            <a href="#" @click="setActiveSection('estudiantes')" 
-               :class="{ active: activeSection === 'estudiantes' }">
-              <span class="icon">👨‍🎓</span>
-              <span v-if="!sidebarCollapsed" class="text">Estudiantes</span>
+
+          <!-- Tablas Maestras con submenú -->
+          <li class="nav-item">
+            <a href="#" @click="toggleSubMenu('tablasMaestras')" 
+               class="nav-link d-flex justify-content-between align-items-center"
+               :class="{ active: isParentActive('tablasMaestras') }">
+              <div>
+                <i class="fas fa-database sidebar-icon"></i>
+                <span v-if="!sidebarCollapsed" class="sidebar-text">Tablas Maestras</span>
+              </div>
+              <i v-if="!sidebarCollapsed" 
+                 :class="subMenus.tablasMaestras ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"
+                 class="submenu-arrow"></i>
+            </a>
+            
+            <!-- Submenú de Tablas Maestras -->
+            <div v-if="subMenus.tablasMaestras && !sidebarCollapsed" class="submenu">
+              <ul class="nav flex-column">
+                <li class="nav-item">
+                  <a href="#" @click="setActiveSection('estudiantes')" 
+                     class="nav-link submenu-link" :class="{ active: activeSection === 'estudiantes' }">
+                    <i class="fas fa-user-graduate sidebar-icon"></i>
+                    <span class="sidebar-text">Estudiantes</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" @click="setActiveSection('actividad')" 
+                     class="nav-link submenu-link" :class="{ active: activeSection === 'actividad' }">
+                    <i class="fas fa-clipboard-list sidebar-icon"></i>
+                    <span class="sidebar-text">Actividades</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" @click="setActiveSection('universidad')" 
+                     class="nav-link submenu-link" :class="{ active: activeSection === 'universidad' }">
+                    <i class="fas fa-university sidebar-icon"></i>
+                    <span class="sidebar-text">Universidad</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+
+          <!-- Otros menús principales -->
+          <li class="nav-item">
+            <a href="#" @click="setActiveSection('reportes')" 
+               class="nav-link" :class="{ active: activeSection === 'reportes' }">
+              <i class="fas fa-chart-bar sidebar-icon"></i>
+              <span v-if="!sidebarCollapsed" class="sidebar-text">Reportes</span>
             </a>
           </li>
-          <li>
-            <a href="#" @click="setActiveSection('actividad')" 
-               :class="{ active: activeSection === 'actividad' }">
-              <span class="icon">📋</span>
-              <span v-if="!sidebarCollapsed" class="text">Actividad</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" @click="setActiveSection('universidad')" 
-               :class="{ active: activeSection === 'universidad' }">
-              <span class="icon">🏛️</span>
-              <span v-if="!sidebarCollapsed" class="text">Universidad</span>
+
+          <li class="nav-item">
+            <a href="#" @click="setActiveSection('configuracion')" 
+               class="nav-link" :class="{ active: activeSection === 'configuracion' }">
+              <i class="fas fa-cog sidebar-icon"></i>
+              <span v-if="!sidebarCollapsed" class="sidebar-text">Configuración</span>
             </a>
           </li>
         </ul>
       </nav>
 
       <div class="sidebar-footer">
-        <button @click="handleLogout" class="logout-btn">
-          <span class="icon">🚪</span>
-          <span v-if="!sidebarCollapsed" class="text">Cerrar Sesión</span>
+        <button @click="handleLogout" class="btn btn-outline-danger btn-sm w-100">
+          <i class="fas fa-sign-out-alt sidebar-icon"></i>
+          <span v-if="!sidebarCollapsed" class="sidebar-text">Cerrar Sesión</span>
         </button>
       </div>
     </aside>
 
     <!-- Contenido principal -->
     <main class="main-content">
-      <header class="main-header">
-        <h1>{{ getSectionTitle() }}</h1>
-        <div class="user-info">
-          <span>Bienvenido, Usuario</span>
+      <header class="main-header bg-white shadow-sm">
+        <div class="d-flex justify-content-between align-items-center">
+          <h1 class="h3 mb-0 text-primary">{{ getSectionTitle() }}</h1>
+          <div class="user-info d-flex align-items-center">
+            <i class="fas fa-user-circle fa-2x text-muted me-2"></i>
+            <div class="user-details">
+              <small class="text-muted d-block">Bienvenido,</small>
+              <strong>Usuario Admin</strong>
+            </div>
+          </div>
         </div>
       </header>
 
       <div class="content-area">
         <!-- Dashboard -->
         <div v-if="activeSection === 'dashboard'" class="section">
-          <div class="cards-grid">
-            <div class="card">
-              <h3>Total Usuarios</h3>
-              <p class="card-number">1,234</p>
+          <div class="row">
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary mb-1">
+                        Total Estudiantes
+                      </div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">1,234</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="card">
-              <h3>Ventas del Mes</h3>
-              <p class="card-number">$45,678</p>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-success mb-1">
+                        Actividades Activas
+                      </div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">45</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="card">
-              <h3>Productos</h3>
-              <p class="card-number">567</p>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-info mb-1">
+                        Universidades
+                      </div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">12</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-university fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="card">
-              <h3>Pedidos Pendientes</h3>
-              <p class="card-number">23</p>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-warning mb-1">
+                        Tareas Pendientes
+                      </div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">23</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráfico de ejemplo -->
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-chart-area me-2"></i>
+                    Registro de Estudiantes por Mes
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <div class="chart-area">
+                    <div class="text-center py-5">
+                      <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                      <p class="text-muted">Gráfico de registro de estudiantes</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-tasks me-2"></i>
+                    Actividades Recientes
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <i class="fas fa-plus-circle text-success me-2"></i>
+                        Nuevo estudiante registrado
+                      </div>
+                      <small class="text-muted">2h</small>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <i class="fas fa-edit text-warning me-2"></i>
+                        Actividad modificada
+                      </div>
+                      <small class="text-muted">4h</small>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <i class="fas fa-university text-info me-2"></i>
+                        Nueva universidad agregada
+                      </div>
+                      <small class="text-muted">1d</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Estudiantes -->
         <div v-if="activeSection === 'estudiantes'" class="section">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">
+              <i class="fas fa-user-graduate text-primary me-2"></i>
+              Gestión de Estudiantes
+            </h4>
+            <button class="btn btn-primary">
+              <i class="fas fa-plus me-2"></i>
+              Nuevo Estudiante
+            </button>
+          </div>
           <EstudiantesComponent />
         </div>
 
-        <!-- Actividad -->
+        <!-- Actividades -->
         <div v-if="activeSection === 'actividad'" class="section">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">
+              <i class="fas fa-clipboard-list text-success me-2"></i>
+              Gestión de Actividades
+            </h4>
+            <button class="btn btn-success">
+              <i class="fas fa-plus me-2"></i>
+              Nueva Actividad
+            </button>
+          </div>
           <ActividadComponent />
         </div>
 
         <!-- Universidad -->
         <div v-if="activeSection === 'universidad'" class="section">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">
+              <i class="fas fa-university text-info me-2"></i>
+              Gestión de Universidades
+            </h4>
+            <button class="btn btn-info">
+              <i class="fas fa-plus me-2"></i>
+              Nueva Universidad
+            </button>
+          </div>
           <UniversidadComponent />
+        </div>
+
+        <!-- Reportes -->
+        <div v-if="activeSection === 'reportes'" class="section">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">
+              <i class="fas fa-chart-bar text-warning me-2"></i>
+              Reportes del Sistema
+            </h4>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">
+                    <i class="fas fa-file-pdf text-danger me-2"></i>
+                    Reporte de Estudiantes
+                  </h5>
+                  <p class="card-text">Generar reporte completo de estudiantes registrados</p>
+                  <button class="btn btn-danger">
+                    <i class="fas fa-download me-2"></i>
+                    Descargar PDF
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">
+                    <i class="fas fa-file-excel text-success me-2"></i>
+                    Reporte de Actividades
+                  </h5>
+                  <p class="card-text">Exportar datos de actividades a Excel</p>
+                  <button class="btn btn-success">
+                    <i class="fas fa-download me-2"></i>
+                    Descargar Excel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Configuración -->
+        <div v-if="activeSection === 'configuracion'" class="section">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">
+              <i class="fas fa-cog text-secondary me-2"></i>
+              Configuración del Sistema
+            </h4>
+          </div>
+          <div class="row">
+            <div class="col-md-8">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="mb-0">
+                    <i class="fas fa-user-cog me-2"></i>
+                    Configuración de Usuario
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <form>
+                    <div class="mb-3">
+                      <label class="form-label">Nombre de usuario</label>
+                      <input type="text" class="form-control" value="Admin Usuario">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Email</label>
+                      <input type="email" class="form-control" value="admin@example.com">
+                    </div>
+                    <div class="mb-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="notifications">
+                        <label class="form-check-label" for="notifications">
+                          Recibir notificaciones por email
+                        </label>
+                      </div>
+                    </div>
+                    <button class="btn btn-primary">
+                      <i class="fas fa-save me-2"></i>
+                      Guardar Cambios
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -116,22 +392,49 @@ export default {
   data() {
     return {
       sidebarCollapsed: false,
-      activeSection: 'dashboard'
+      activeSection: 'dashboard',
+      subMenus: {
+        tablasMaestras: false
+      }
     }
   },
   methods: {
     toggleSidebar() {
       this.sidebarCollapsed = !this.sidebarCollapsed;
+      if (this.sidebarCollapsed) {
+        // Cerrar todos los submenús cuando se colapsa el sidebar
+        Object.keys(this.subMenus).forEach(key => {
+          this.subMenus[key] = false;
+        });
+      }
     },
     setActiveSection(section) {
       this.activeSection = section;
+      
+      // Si es una sección de tablas maestras, abrir el submenú
+      if (['estudiantes', 'actividad', 'universidad'].includes(section)) {
+        this.subMenus.tablasMaestras = true;
+      }
+    },
+    toggleSubMenu(menuKey) {
+      if (!this.sidebarCollapsed) {
+        this.subMenus[menuKey] = !this.subMenus[menuKey];
+      }
+    },
+    isParentActive(parentKey) {
+      if (parentKey === 'tablasMaestras') {
+        return ['estudiantes', 'actividad', 'universidad'].includes(this.activeSection);
+      }
+      return false;
     },
     getSectionTitle() {
       const titles = {
-        dashboard: 'Dashboard',
-        estudiantes: 'Estudiantes',
-        actividad: 'Actividad',
-        universidad: 'Universidad'
+        dashboard: 'Dashboard Principal',
+        estudiantes: 'Gestión de Estudiantes',
+        actividad: 'Gestión de Actividades',
+        universidad: 'Gestión de Universidades',
+        reportes: 'Reportes del Sistema',
+        configuracion: 'Configuración'
       };
       return titles[this.activeSection] || 'Dashboard';
     },
@@ -149,319 +452,19 @@ export default {
     // if (!token) {
     //   this.$emit('logout');
     // }
+
+    // Si la sección activa es parte de tablas maestras, abrir el submenú
+    if (['estudiantes', 'actividad', 'universidad'].includes(this.activeSection)) {
+      this.subMenus.tablasMaestras = true;
+    }
   }
 }
 </script>
 
 <style>
-/* Reset global para pantalla completa */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  height: 100%;
-  overflow: hidden;
-}
-
-#app {
-  height: 100vh;
-  width: 100vw;
-}
+@import '../assets/dashboard/global.css';
 </style>
 
 <style scoped>
-.dashboard-container {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  background-color: #f8f9fa;
-  position: fixed;
-  top: 0;
-  left: 0;
-  overflow: hidden;
-}
-
-/* Sidebar */
-.sidebar {
-  width: 250px;
-  background-color: #2c3e50;
-  color: white;
-  transition: width 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  height: 100vh;
-  overflow-y: auto;
-}
-
-.sidebar-collapsed {
-  width: 70px;
-}
-
-.sidebar-header {
-  padding: 1rem;
-  border-bottom: 1px solid #34495e;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.sidebar-header h3 {
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-.toggle-btn {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  font-size: 1.2rem;
-  padding: 0.25rem;
-}
-
-.sidebar-nav {
-  flex: 1;
-  padding: 1rem 0;
-  overflow-y: auto;
-}
-
-.sidebar-nav ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sidebar-nav li {
-  margin-bottom: 0.5rem;
-}
-
-.sidebar-nav a {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  color: #bdc3c7;
-  text-decoration: none;
-  transition: background-color 0.2s;
-}
-
-.sidebar-nav a:hover,
-.sidebar-nav a.active {
-  background-color: #34495e;
-  color: white;
-}
-
-.sidebar-nav .icon {
-  font-size: 1.2rem;
-  width: 20px;
-  text-align: center;
-}
-
-.sidebar-nav .text {
-  margin-left: 0.75rem;
-}
-
-.sidebar-footer {
-  padding: 1rem;
-  border-top: 1px solid #34495e;
-  flex-shrink: 0;
-}
-
-.logout-btn {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 0.75rem;
-  background: none;
-  border: none;
-  color: #e74c3c;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.logout-btn:hover {
-  background-color: rgba(231, 76, 60, 0.1);
-}
-
-.logout-btn .icon {
-  font-size: 1.2rem;
-  width: 20px;
-  text-align: center;
-}
-
-.logout-btn .text {
-  margin-left: 0.75rem;
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-  min-width: 0;
-}
-
-.main-header {
-  background: white;
-  padding: 1rem 2rem;
-  border-bottom: 1px solid #dee2e6;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.main-header h1 {
-  margin: 0;
-  color: #2c3e50;
-}
-
-.user-info {
-  color: #6c757d;
-}
-
-.content-area {
-  flex: 1;
-  padding: 2rem;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-/* Dashboard Cards */
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-
-.card h3 {
-  margin: 0 0 1rem 0;
-  color: #6c757d;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-}
-
-.card-number {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #2c3e50;
-  margin: 0;
-}
-
-/* Sections */
-.section {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 100%;
-  overflow-y: auto;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #555;
-  font-weight: 500;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  max-width: 400px;
-}
-
-.setting-item {
-  margin-bottom: 1rem;
-}
-
-.setting-item label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.setting-item input[type="checkbox"] {
-  margin-right: 0.5rem;
-}
-
-.report-item {
-  padding: 1rem;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 0.5rem;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .dashboard-container {
-    flex-direction: column;
-  }
-  
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-    flex-shrink: 0;
-  }
-  
-  .sidebar-collapsed {
-    width: 100%;
-    transform: none;
-  }
-  
-  .main-content {
-    height: calc(100vh - 60px);
-  }
-  
-  .main-header {
-    padding: 1rem;
-  }
-  
-  .content-area {
-    padding: 1rem;
-  }
-  
-  .cards-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-}
+@import '../assets/dashboard/particular.css';
 </style>
